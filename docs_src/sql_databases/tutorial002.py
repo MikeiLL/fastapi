@@ -42,9 +42,14 @@ def create_db_and_tables():
 def get_session():
     with Session(engine) as session:
         yield session
+        
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    models.create_db_and_tables()
+    yield
+    # Can include startup _completion_ events here
 
-
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 @app.on_event("startup")
